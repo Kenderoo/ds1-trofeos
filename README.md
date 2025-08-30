@@ -1,1 +1,1 @@
-# ds1-trofeos
+# ds1-trofeos-hechizos
