@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dark Souls 1 - Magias</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1e1e1e;
+      color: #f0f0f0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .progress {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.1em;
+    }
+    .reset-btn {
+      display: block;
+      margin: 0 auto 30px auto;
+      padding: 10px 20px;
+      background-color: #cc0000;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .reset-btn:hover {
+      background-color: #ff3333;
+    }
+    .container {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .column {
+      flex: 1;
+      background-color: #2e2e2e;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .column h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin: 5px 0;
+      cursor: pointer;
+    }
+    input[type="checkbox"]:checked + span {
+      text-decoration: line-through;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dark Souls 1 - Magias</h1>
+  <div class="progress" id="progress">Cargando progreso...</div>
+  <button class="reset-btn" onclick="resetProgress()">🔄 Reiniciar progreso</button>
+  <div class="container">
+    <div class="column" id="piromancias">
+      <h2>🔥 Piromancias</h2>
+    </div>
+    <div class="column" id="hechizos">
+      <h2>🔮 Hechizos</h2>
+    </div>
+    <div class="column" id="milagros">
+      <h2>✨ Milagros</h2>
+    </div>
+  </div>
+
+  <script>
+    const piromancias = [
+      "Orbe de fuego", "Gran orbe de fuego", "Orbe de fuego del caos", "Gran orbe de fuego del caos",
+      "Combustión", "Gran combustión", "Tormenta de fuego", "Tormenta de fuego del caos",
+      "Oleada de fuego", "Oleada ácida", "Neblina venenosa", "Neblina tóxica",
+      "Carne férrea", "Sudor relámpago", "Poder interior", "Compenetración con no muertos"
+    ];
+
+    const hechizos = [
+      "Flecha de alma", "Flecha de alma pesada", "Gran flecha de alma", "Gran flecha de alma pesada",
+      "Masa de alma dirigida", "Masa de alma de cristal dirigida", "Lanza de alma", "Lanza de alma de cristal",
+      "Aliento de dragón blanco", "Arma mágica", "Gran arma mágica", "Arma mágica de cristal",
+      "Escudo mágico", "Escudo mágico fuerte", "Cuerpo oculto", "Camaleón", "Silencio",
+      "Señuelo aural", "Reparar", "Remedio", "Lanzar luz", "Controlar caída",
+      "Disipar maldición", "Arma oculta"
+    ];
+
+    const milagros = [
+      "Curación", "Gran curación", "Extracto de gran curación", "Reabastecimiento",
+      "Luz solar dadivosa", "Luz solar relajante", "Regresar", "Emitir fuerza", "Fuerza",
+      "Ira de los dioses", "Lanza relámpago", "Gran lanza relámpago", "Lanza de luz solar",
+      "Espada de luz solar", "Espada de Luna Oscura", "Justicia kármica", "Voto de silencio",
+      "Apacible paseo de paz", "Buscar orientación", "Barrera mágica", "Gran barrera mágica",
+      "Danza espada rey del cementerio", "Gran danza espada rey del cementerio"
+    ];
+
+    function createList(spells, containerId) {
+      const container = document.getElementById(containerId);
+      spells.forEach((spell, index) => {
+        const id = `${containerId}-${index}`;
+        const saved = localStorage.getItem(id) === "true";
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = id;
+        checkbox.checked = saved;
+        checkbox.addEventListener("change", () => {
+          localStorage.setItem(id, checkbox.checked);
+          updateProgress();
+        });
+        const span = document.createElement("span");
+        span.textContent = spell;
+        label.appendChild(checkbox);
+        label.appendChild(span);
+        container.appendChild(label);
+      });
+    }
+
+    function updateProgress() {
+      const total = piromancias.length + hechizos.length + milagros.length;
+      let marked = 0;
+      piromancias.forEach((_, i) => {
+        if (document.getElementById(`piromancias-${i}`).checked) marked++;
+      });
+      hechizos.forEach((_, i) => {
+        if (document.getElementById(`hechizos-${i}`).checked) marked++;
+      });
+      milagros.forEach((_, i) => {
+        if (document.getElementById(`milagros-${i}`).checked) marked++;
+      });
+
+      const progressText = `
+        🔥 Piromancias: ${countChecked("piromancias", piromancias.length)} / ${piromancias.length} |
+        🔮 Hechizos: ${countChecked("hechizos", hechizos.length)} / ${hechizos.length} |
+        ✨ Milagros: ${countChecked("milagros", milagros.length)} / ${milagros.length} |
+        🧮 Total: ${marked} / ${total}
+      `;
+      document.getElementById("progress").textContent = progressText;
+    }
+
+    function countChecked(prefix, length) {
+      let count = 0;
+      for (let i = 0; i < length; i++) {
+        if (document.getElementById(`${prefix}-${i}`).checked) count++;
+      }
+      return count;
+    }
+
+    function resetProgress() {
+      if (confirm("¿Seguro que quieres reiniciar tu progreso?")) {
+        [...piromancias, ...hechizos, ...milagros].forEach((_, i) => {
+          localStorage.removeItem(`piromancias-${i}`);
+          localStorage.removeItem(`hechizos-${i}`);
+          localStorage.removeItem(`milagros-${i}`);
+        });
+        document.querySelectorAll("input[type='checkbox']").forEach(cb => cb.checked = false);
+        updateProgress();
+      }
+    }
+
+    createList(piromancias, "piromancias");
+    createList(hechizos, "hechizos");
+    createList(milagros, "milagros");
+    updateProgress();
+  </script>
+</body>
